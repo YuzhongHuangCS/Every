@@ -3,6 +3,18 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Label x:Name="SloganLabel" Content="Every second worth!" HorizontalAlignment="Center"  VerticalAlignment="Center" FontSize="32" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="PathText" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Width="200" Grid.Row="1"/>
+        <Button x:Name="SelectButton" Content="Browse" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Padding="40,2" BorderThickness="0" Cursor="Hand" Grid.Row="1" Grid.Column="1"/>
+        <Button x:Name="StartButton" Content="Start" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Padding="80,5" BorderThickness="0" Cursor="Hand" Grid.Row="2" Grid.ColumnSpan="2" />
     </Grid>
 </Window>

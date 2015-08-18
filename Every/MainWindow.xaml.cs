@@ -18,8 +18,12 @@ namespace Every {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
+        private GitManager gitManager;
+        private EventManager eventManager;
+
         public MainWindow() {
             InitializeComponent();
         }
+
     }
 }
