@@ -10,9 +10,8 @@ namespace Every {
         private Repository repo;
 
         public GitManager(string path) {
-            repo = new Repository(path);
-        }
 
+        }
 
     }
 }

@@ -13,8 +13,8 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Label x:Name="SloganLabel" Content="Every second worth!" HorizontalAlignment="Center"  VerticalAlignment="Center" FontSize="32" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Grid.ColumnSpan="2"/>
-        <TextBox x:Name="PathText" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Width="200" Grid.Row="1"/>
-        <Button x:Name="SelectButton" Content="Browse" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Padding="40,2" BorderThickness="0" Cursor="Hand" Grid.Row="1" Grid.Column="1"/>
-        <Button x:Name="StartButton" Content="Start" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Padding="80,5" BorderThickness="0" Cursor="Hand" Grid.Row="2" Grid.ColumnSpan="2" />
+        <TextBox x:Name="PathText" TextWrapping="NoWrap" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Width="200" Grid.Row="1" TextChanged="PathText_TextChanged"/>
+        <Button x:Name="SelectButton" Content="Browse" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Padding="40,2" BorderThickness="0" Cursor="Hand" Grid.Row="1" Grid.Column="1" Click="SelectButton_Click"/>
+        <Button x:Name="StartButton" Content="Start" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Padding="80,5" BorderThickness="0" Cursor="Hand" Grid.Row="2" Grid.ColumnSpan="2" Click="StartButton_Click" IsEnabled="False" />
     </Grid>
 </Window>

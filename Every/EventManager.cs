@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace Every {
     class EventManager {
+        public EventManager(string path) {
 
+        }
     }
 }
