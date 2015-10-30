@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace Every {
     class EventManager {
@@ -19,22 +16,35 @@ namespace Every {
             watcher.Deleted += new FileSystemEventHandler(OnDeleted);
             watcher.Renamed += new RenamedEventHandler(OnRenamed);
             watcher.EnableRaisingEvents = true;
+
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            startInfo.FileName = "cmd.exe";
+            startInfo.Arguments = "/C git status";
+            startInfo.WorkingDirectory = Path.GetDirectoryName(path);
+            startInfo.CreateNoWindow = true;
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardOutput = true;
+
+            using (Process process = Process.Start(startInfo)) {
+                Console.WriteLine(process.StandardOutput.ReadToEnd());
+                Console.WriteLine(process.ExitCode);
+            }
         }
 
         private void OnCreated(object sender, FileSystemEventArgs e) {
-            Console.WriteLine(string.Format("[{0}] {1}:{2}", DateTime.Now.ToString(), e.ChangeType.ToString(), e.FullPath));
+            Console.WriteLine("[{0}] {1}:{2}", DateTime.Now, e.ChangeType, e.FullPath);
         }
 
         private void OnChanged(object sender, FileSystemEventArgs e) {
-            Console.WriteLine(string.Format("[{0}] {1}:{2}", DateTime.Now.ToString(), e.ChangeType.ToString(), e.FullPath));
+            Console.WriteLine("[{0}] {1}:{2}", DateTime.Now, e.ChangeType, e.FullPath);
         }
 
         private void OnDeleted(object sender, FileSystemEventArgs e) {
-            Console.WriteLine(string.Format("[{0}] {1}:{2}", DateTime.Now.ToString(), e.ChangeType.ToString(), e.FullPath));
+            Console.WriteLine("[{0}] {1}:{2}", DateTime.Now, e.ChangeType, e.FullPath);
         }
 
         private void OnRenamed(object sender, RenamedEventArgs e) {
-            Console.WriteLine(string.Format("[{0}] {1}:{2}", DateTime.Now.ToString(), e.ChangeType.ToString(), e.FullPath));
+            Console.WriteLine("[{0}] {1}:{2}", DateTime.Now, e.ChangeType, e.FullPath);
         }
     }
 }
