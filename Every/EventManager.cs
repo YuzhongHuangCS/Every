@@ -1,42 +1,35 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
-using DeltaCompressionDotNet;
-using DeltaCompressionDotNet.MsDelta;
+using SharpSvn;
 
 namespace Every {
     class EventManager {
         private string path;
         private string filename;
         private string directory;
-        private string workDirectory;
-        private string patchDirectory;
-        private string refFilename;
-        private string refPath;
+        private string svnDirectory;
+        private SvnClient client;
+        private SvnRepositoryClient repo;
         private FileSystemWatcher watcher;
-        private MsDeltaCompression deltaCompression;
-        private BlockingCollection<string> queue;
-        private Thread worker;
 
         public EventManager(string path) {
             this.path = path;
             filename = Path.GetFileName(path);
             directory = Path.GetDirectoryName(path);
-            workDirectory = Path.Combine(directory, "_every");
-            patchDirectory = Path.Combine(workDirectory, "patch");
-            refFilename = filename + ".ref";
-            refPath = Path.Combine(workDirectory, refFilename);
-
-            if (!Directory.Exists(workDirectory)) {
-                Directory.CreateDirectory(workDirectory);
-            }
-            if (!Directory.Exists(patchDirectory)) {
-                Directory.CreateDirectory(patchDirectory);
-            }
-            if (!File.Exists(refPath)) {
-                File.Copy(path, refPath);
+            svnDirectory = Path.Combine(directory, "svn");
+            client = new SvnClient();
+            repo = new SvnRepositoryClient();
+            
+            if (!Directory.Exists(svnDirectory)) {           
+                repo.CreateRepository(svnDirectory);
+                client.CheckOut(new SvnUriTarget(svnDirectory), directory);
+                client.Add(path);
+                client.Commit(directory, new SvnCommitArgs { LogMessage = "Initialize repository" });
+            } else {
+                client.CheckOut(new SvnUriTarget(svnDirectory), directory, new SvnCheckOutArgs { AllowObstructions = true });
+                client.Resolved(directory);
+                //client.Add(path);
             }
 
             watcher = new FileSystemWatcher();
@@ -47,13 +40,7 @@ namespace Every {
             watcher.Changed += new FileSystemEventHandler(OnChanged);
             watcher.Deleted += new FileSystemEventHandler(OnDeleted);
             watcher.Renamed += new RenamedEventHandler(OnRenamed);
-            watcher.EnableRaisingEvents = true;
-
-            deltaCompression = new MsDeltaCompression();
-            queue = new BlockingCollection<string>();
-            worker = new Thread(new ThreadStart(ProcessQueue));
-            worker.IsBackground = true;
-            worker.Start();
+            watcher.EnableRaisingEvents = true;            
         }
 
         private void OnCreated(object sender, FileSystemEventArgs e) {
@@ -62,16 +49,17 @@ namespace Every {
 
         private void OnChanged(object sender, FileSystemEventArgs e) {
             Console.WriteLine("[{0}] {1}:{2}", DateTime.Now, e.ChangeType, e.FullPath);
-            Enqueue();
+            Commit();
         }
 
         private void OnDeleted(object sender, FileSystemEventArgs e) {
             Console.WriteLine("[{0}] {1}:{2}", DateTime.Now, e.ChangeType, e.FullPath);
+            Commit();
         }
 
         private void OnRenamed(object sender, RenamedEventArgs e) {
             Console.WriteLine("[{0}] {1}:{2}:{3}", DateTime.Now, e.ChangeType, e.FullPath, e.OldFullPath);
-            Enqueue();
+            Commit();
         }
 
         private string TimeStringNow {
@@ -81,32 +69,22 @@ namespace Every {
             }
         }
 
-        private void Enqueue() {
-            string thisPath = string.Format("{0}_{1}.this", Path.Combine(workDirectory, filename), TimeStringNow);
-            File.Copy(path, thisPath, true);
-            queue.Add(thisPath);
+        private void Commit() {
+            Console.WriteLine("Before Commit");
+            client.Commit(directory, new SvnCommitArgs { LogMessage = "Automatic commit" });
+            Console.WriteLine("After Commit, Before Cleanup");
+            client.CleanUp(directory);
+            Console.WriteLine("After Cleanup");
         }
 
-        private void ProcessQueue() {
-            while (true) {
-                string thisPath = queue.Take();
-                string deltaPath = Path.Combine(patchDirectory, string.Format("{0}_{1}.delta", filename, TimeStringNow));
-
-                //using (FileStream fs = File.Open(thisPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
-                //    Console.WriteLine(fs.Length);
-                //}
-                Stopwatch timer = new Stopwatch();
-                timer.Start();
-                deltaCompression.CreateDelta(thisPath, refPath, deltaPath);
-                timer.Stop();
-                Console.WriteLine("Time Used: {0}s", timer.Elapsed);
-                Console.WriteLine("{0}, {1}, {2}", thisPath, refPath, deltaPath);
-                Console.WriteLine("About to copy");
-                if (File.Exists(refPath)) {
-                    File.Delete(refPath);
-                }
-                File.Move(thisPath, refPath);
+        ~EventManager() {
+            Console.WriteLine("I am called");
+            try {
+                Directory.Delete(Path.Combine(directory, ".svn"), true);
+            } catch (Exception e) {
+                Console.WriteLine(e.StackTrace);
             }
+            
         }
     }
 }
