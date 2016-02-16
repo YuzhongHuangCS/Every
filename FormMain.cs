@@ -13,5 +13,16 @@ namespace Every {
         public FormMain() {
             InitializeComponent();
         }
+
+        private void buttonAddRepo_Click(object sender, EventArgs e) {
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            if (dialog.ShowDialog() == DialogResult.OK) {
+                listViewMain.Items.Add(dialog.SelectedPath);
+            }
+        }
+
+        private void listViewMain_Click(object sender, EventArgs e) {
+            System.Console.WriteLine(listViewMain.SelectedItems);
+        }
     }
 }
