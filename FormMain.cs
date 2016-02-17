@@ -22,7 +22,7 @@ namespace Every {
         }
 
         private void listViewMain_Click(object sender, EventArgs e) {
-            System.Console.WriteLine(listViewMain.SelectedItems);
+            ListViewItem current = listViewMain.SelectedItems[0];
         }
     }
 }
